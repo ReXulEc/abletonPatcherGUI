@@ -5,12 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "electron .",
+    "cli": "node index.js"
   },
   "author": "rexulec",
   "license": "ISC",
   "dependencies": {
     "asn1.js": "^5.4.1",
     "bn.js": "^5.2.2"
+  },
+  "devDependencies": {
+    "electron": "^37.1.0"
   }
 }

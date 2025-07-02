@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>abletonPatcherGUI</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <form id="myForm">
+        <label for="hwid">HWID</label>
+        <input type="text" id="hwid" name="hwid" required>
+
+        <label for="version">Ableton Details:</label>
+
+        <div class="flex-container">
+            <select name="version" required id="version">
+                <option value=9>9</option>
+                <option value=10>10</option>
+                <option value=11>11</option>
+                <option value=12>12</option>
+            </select>
+            <select name="edition" required id="edition">
+                <option value="Lite">Lite</option>
+                <option value="Intro">Intro</option>
+                <option value="Standard">Standard</option>
+                <option value="Suite">Suite</option>
+            </select>
+        </div>
+
+        <label for="fp">File Path:</label>
+        <input type="text" id="fp" name="fp" required>
+
+        <button type="submit">Crack!</button>
+    </form>
+
+    <div id="responseMessage"></div>
+    <p class="bottom">alr</p>
+    <script src="./js/renderer.js"></script>
+    <!-- import the css -->
+    <link rel="stylesheet" href="./css/style.css">
+</body>
+
+</html>

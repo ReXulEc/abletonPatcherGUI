@@ -1,0 +1,84 @@
+        body {
+            font-family: ui-sans-serif, "SF Pro", "Inter", "Noto Sans SC", "PingFang SC", "SF Pro Icons", "Arial", sans-serif;
+            padding: 20px;
+        }
+
+        body.light-mode {
+            color: #333333;
+        }
+
+        body.dark-mode {
+            color: #ffffff;
+        }
+
+        h1 {
+            color: inherit;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        select {
+            background-color: #ffffff1a;
+        }
+
+
+
+        .flex-container {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .flex-container select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #ffffff1a;
+        }
+
+        button {
+            background-color: #79797918;
+            color: white;
+            padding: 10px 15px;
+            border: 1px solid #ffffffee;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #a7a7a78f;
+        }
+
+        #responseMessage {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3e7;
+            border: 1px solid #d4edda;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .bottom {
+    position: fixed;
+    bottom: 0;
+}
