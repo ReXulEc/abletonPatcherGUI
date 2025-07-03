@@ -1,5 +1,10 @@
 const themeStatusDiv = document.getElementById('themeStatus');
 
+function exit() {
+    window.myApi.send('form-veri-gonder', { exit: true });
+    console.log('Uygulama kapatılıyor...');
+}
+
 function clipboardBottom(number) {
     if (number === 1) {
         navigator.clipboard.writeText("https://mert.day");

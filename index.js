@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron');
-const cachePath = path.join(__dirname, './config/cache.json');
+const cachePath = path.join(__dirname, '/config/cache.json');
 const { spawn } = require('child_process');
 
 let mainWindow;
@@ -9,7 +9,6 @@ let mainWindow;
 function createWindow() {
     mainWindow = new BrowserWindow({
         title: 'AbletonPatcherGUI',
-        //icon: path.join(__dirname, 'icon.png'), // Uygulama simgesi
         width: 400,
         height: 500,
         transparent: true,
@@ -46,26 +45,32 @@ app.on('window-all-closed', () => {
 */
 let outputLogs = [];
 ipcMain.on('form-veri-gonder', (event, formData) => {
-    outputLogs = []; // Her işlem için logları temizle
-    console.log('Main Sürecinde form verileri alındı:', formData);
+    if (formData.exit === true) {
+        console.log('Uygulama kapatılıyor...');
+        app.quit();
+        return;
+    } else {
+        outputLogs = []; // Her işlem için logları temizle
+        console.log('Main Sürecinde form verileri alındı:', formData);
 
-    fs.writeFileSync(cachePath, JSON.stringify(formData, null, 2), 'utf8')
-    console.log('Form verileri cache.json dosyasına yazıldı.');
-    const scriptPath = path.join(__dirname, 'util/patcher.js');
+        fs.writeFileSync(cachePath, JSON.stringify(formData, null, 2), 'utf8')
+        console.log('Form verileri cache.json dosyasına yazıldı.');
+        const scriptPath = path.join(__dirname, 'util/patcher.js');
 
-    const child = spawn('node', [scriptPath]);
+        const child = spawn('node', [scriptPath]);
 
-    child.stdout.on('data', (data) => {
-        console.log(`Alt işlem çıktısı: ${data}`);
-        outputLogs.push(data.toString());
-        event.sender.send('form-isleme-tamamlandi', { success: true, message: outputLogs.join('\n') });
-    });
+        child.stdout.on('data', (data) => {
+            console.log(`Alt işlem çıktısı: ${data}`);
+            outputLogs.push(data.toString());
+            event.sender.send('form-isleme-tamamlandi', { success: true, message: outputLogs.join('\n') });
+        });
 
-    child.stderr.on('data', (data) => {
-        console.log(`Alt işlem çıktısı: ${data}`);
-        outputLogs.push(data.toString());
-        event.sender.send('form-isleme-tamamlandi', { success: false, message: outputLogs.join('\n') });
-    });
+        child.stderr.on('data', (data) => {
+            console.log(`Alt işlem çıktısı: ${data}`);
+            outputLogs.push(data.toString());
+            event.sender.send('form-isleme-tamamlandi', { success: false, message: outputLogs.join('\n') });
+        });
+    }
 
     /* 
         child.on('error', (err) => {
