@@ -3,12 +3,37 @@ const crypto = require('crypto');
 const path = require('path');
 const asn1 = require('asn1.js');
 const BN = require('bn.js');
-const formData = {
-  hwid: '223E-5E8C-B487-362C-AB04-5B1B',
-  version: 11,
-  edition: 'Suite',
-  file_path: '//Applications//Ableton Live 11 Suite.app//Contents//MacOS//Live'
+
+const configPath = path.join(__dirname, '../config/config.json')
+const cachePath = path.join(__dirname, '../config/cache.json');
+
+// ------------------------IMPORTANT NOTE------------------------
+// i tried to use this module on main index.js but it didn't work,
+// thats why i moved it to a separate file with child process
+
+
+let formData = {
+  hwid: null,
+  version: null,
+  edition: null,
+  file_path: null
 }
+
+if (fs.existsSync(cachePath)) {
+    try {
+        const cacheData = fs.readFileSync(cachePath, 'utf8');
+        if (cacheData) {
+            formData = JSON.parse(cacheData);
+            console.log("Önbellek verileri başarıyla yüklendi:", formData);
+        } else {
+            console.log("Önbellek dosyası boş, varsayılan form verileri kullanılıyor.");
+        }
+    } catch (error) {
+        console.error("Önbellek dosyası okunurken hata oluştu:", error);
+    }
+} else {
+    console.log("Önbellek dosyası bulunamadı");
+}   
 
 function loadConfig(filename, config2) {
     try {
@@ -235,10 +260,10 @@ function* generateAll(k, edition, version, hwid) {
     }
 }
 
-function main() {
+function main(configPath) {
     console.log("Node.js Yetkilendirme Betiği Başlatılıyor...");
 
-    const config = loadConfig('config.json', formData);
+    const config = loadConfig(configPath, formData);
     console.log("Yapılandırma başarıyla yüklendi.");
 
     const privateKey = constructKey(config.dsaParams);
@@ -257,4 +282,4 @@ function main() {
 
     console.log("\nİşlem tamamlandı.");
 }
-main();
+main(configPath);

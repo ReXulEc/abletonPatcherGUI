@@ -1,7 +1,7 @@
 {
   "name": "abletonpatcherui",
   "version": "1.0.0",
-  "description": "Ableton Patcher for Windows/Mac/Linux. Original: Rufoa",
+  "description": "Ableton Patcher for Windows/Mac/Linux.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
