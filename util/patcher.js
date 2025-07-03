@@ -13,10 +13,10 @@ const cachePath = path.join(__dirname, '../config/cache.json');
 
 
 let formData = {
-  hwid: null,
-  version: null,
-  edition: null,
-  file_path: null
+    hwid: null,
+    version: null,
+    edition: null,
+    file_path: null
 }
 
 if (fs.existsSync(cachePath)) {
@@ -24,22 +24,27 @@ if (fs.existsSync(cachePath)) {
         const cacheData = fs.readFileSync(cachePath, 'utf8');
         if (cacheData) {
             formData = JSON.parse(cacheData);
-            console.log("Önbellek verileri başarıyla yüklendi:", formData);
-        } else {
-            console.log("Önbellek dosyası boş, varsayılan form verileri kullanılıyor.");
         }
     } catch (error) {
-        console.error("Önbellek dosyası okunurken hata oluştu:", error);
+        console.error(`Cache file is corrupted or invalid: ${cachePath}`);
+        process.exit(1);
     }
 } else {
-    console.log("Önbellek dosyası bulunamadı");
-}   
+    console.error(`Cache file not found at: ${cachePath}`);
+    process.exit(1);
+
+}
+
+fs.writeFileSync(cachePath, JSON.stringify({}, null, 2), 'utf8')
+
 
 function loadConfig(filename, config2) {
     try {
         const filePath = path.resolve(filename);
         if (!fs.existsSync(filePath)) {
-            throw new Error(`Yapılandırma dosyası bulunamadı: ${filePath}`);
+            console.error(`Configuration file not found: ${filePath}`);
+            process.exit(1);
+
         }
 
         const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -60,10 +65,14 @@ function loadConfig(filename, config2) {
         } = config2;
 
         if (!file_path || !old_signkey || !new_signkey) {
-            throw new Error("JSON dosyası 'file_path', 'old_signkey' ve 'new_signkey' içermelidir.");
+            console.error("JSON file must contain 'file_path', 'old_signkey', and 'new_signkey'.");
+            process.exit(1);
+
         }
         if (!dsa_parameters) {
-            throw new Error("DSA parametreleri yapılandırma dosyasında eksik.");
+            console.error("DSA parameters are missing in the configuration file.");
+            process.exit(1);
+
         }
 
         hwid = hwid.toUpperCase();
@@ -71,7 +80,9 @@ function loadConfig(filename, config2) {
             hwid = hwid.match(/.{1,4}/g).join('-');
         }
         if (!/^([0-9A-F]{4}-){5}[0-9A-F]{4}$/.test(hwid)) {
-            throw new Error(`Donanım ID'si '1111-1111-1111-1111-1111-1111' gibi olmalı, '${hwid}' değil.`);
+            console.error(`Hardware ID should be like '1111-1111-1111-1111-1111-1111', not '${hwid}'.`);
+            process.exit(1);
+
         }
 
 
@@ -87,8 +98,9 @@ function loadConfig(filename, config2) {
         };
 
     } catch (error) {
-        console.error(`Yapılandırma yüklenirken hata oluştu: ${error.message}`);
+        console.error(`Error loading configuration: ${error.message}`);
         process.exit(1);
+
     }
 }
 
@@ -135,42 +147,51 @@ function replaceSignkeyInFile(filePath, oldSignkey, newSignkey) {
     const newKeyHex = newSignkey.startsWith("0x") ? newSignkey.substring(2) : newSignkey;
 
     if (oldKeyHex.length !== newKeyHex.length) {
-        throw new Error("Yeni imza anahtarı, eski imza anahtarıyla aynı uzunlukta olmalıdır.");
+        console.error("New signature key must be the same length as the old signature key.");
+        process.exit(1);
+
     }
 
     if (!/^[0-9a-fA-F]+$/.test(oldKeyHex) || !/^[0-9a-fA-F]+$/.test(newKeyHex)) {
-        throw new Error("İmza anahtarları geçerli hex dizeleri olmalıdır.");
+        console.error("Signature keys must be valid hex strings.");
+        process.exit(1);
+
     }
 
     try {
         if (!fs.existsSync(filePath)) {
-            console.log(`Dosya bulunamadı: '${filePath}'`);
-            return;
+            console.error(`File not found: ${filePath}`);
+            process.exit(1);
+
         }
 
         let content = fs.readFileSync(filePath);
         const oldSignkeyBytes = Buffer.from(oldKeyHex, 'hex');
 
         if (content.indexOf(oldSignkeyBytes) === -1) {
-            console.log(`Eski imza anahtarı '${oldKeyHex.substring(0, 20)}...' dosyada bulunamadı.`);
+            console.log(`Old signature key '${oldKeyHex.substring(0, 20)}...' not found in the file.`);
         } else {
-            console.log(`Eski imza anahtarı bulundu. Değiştiriliyor...`);
+            console.log(`Replacing old signature key...`);
 
             const contentHex = content.toString('hex');
-            const newContentHex = contentHex.split(oldKeyHex).join(newKeyHex); // .replace() sadece ilkini değiştirir
+            const newContentHex = contentHex.split(oldKeyHex).join(newKeyHex);
             const newContent = Buffer.from(newContentHex, 'hex');
 
             fs.writeFileSync(filePath, newContent);
 
             const finalContent = fs.readFileSync(filePath);
             if (finalContent.indexOf(oldSignkeyBytes) !== -1) {
-                console.error("Hata: Eski imza anahtarı hala dosyada mevcut.");
+                console.error("Old signature key still exists in the file after replacement.");
+                process.exit(1);
+
             } else {
-                console.log("İmza anahtarı başarıyla değiştirildi.");
+                console.log(`Signature key successfully replaced.`);
             }
         }
     } catch (error) {
-        console.error(`Bir hata oluştu: ${error.message}`);
+        console.error(`Failed to replace signature key: ${error.message}`);
+        process.exit(1);
+
     }
 }
 
@@ -261,25 +282,24 @@ function* generateAll(k, edition, version, hwid) {
 }
 
 function main(configPath) {
-    console.log("Node.js Yetkilendirme Betiği Başlatılıyor...");
-
     const config = loadConfig(configPath, formData);
-    console.log("Yapılandırma başarıyla yüklendi.");
+    console.log('Configuration loaded successfully.');
 
     const privateKey = constructKey(config.dsaParams);
-    console.log("DSA özel anahtarı başarıyla oluşturuldu.");
+    console.log('DSA private key constructed successfully.');
 
     const lines = Array.from(generateAll(privateKey, config.edition, config.version, config.hwid));
     try {
         fs.writeFileSync(config.authorizeFileOutput, lines.join("\n"), { encoding: 'utf8' });
-        console.log(`Yetkilendirme dosyası '${config.authorizeFileOutput}' başarıyla oluşturuldu.`);
+        console.log(`Authorization file '${config.authorizeFileOutput}' created successfully.`);
     } catch (error) {
-        console.error(`Yetkilendirme dosyası yazılırken hata oluştu: ${error.message}`);
+        console.error(`Failed to write authorization file: ${error.message}`);
         process.exit(1);
+
     }
 
     replaceSignkeyInFile(config.filePath, config.oldSignkey, config.newSignkey);
 
-    console.log("\nİşlem tamamlandı.");
+    console.log("Done!")
 }
 main(configPath);
