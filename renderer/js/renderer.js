@@ -2,7 +2,6 @@ const themeStatusDiv = document.getElementById('themeStatus');
 
 function exit() {
     window.myApi.send('form-veri-gonder', { exit: true });
-    console.log('Uygulama kapatılıyor...');
 }
 
 function clipboardBottom(number) {
@@ -18,7 +17,6 @@ function clipboardBottom(number) {
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const isDark = await window.myApi.getSystemTheme();
-        console.log('Sistem Teması (Başlangıç):', isDark ? 'Karanlık' : 'Aydınlık');
         updateThemeDisplay(isDark);
         if (isDark) {
             document.body.classList.add('dark-mode');
@@ -26,16 +24,13 @@ window.addEventListener('DOMContentLoaded', async () => {
             document.body.classList.add('light-mode');
         }
     } catch (error) {
-        console.error('Tema bilgisi alınırken hata oluştu:', error);
-        if (themeStatusDiv) {
-            themeStatusDiv.textContent = 'Tema bilgisi alınamadı.';
-        }
+        console.error(error)
     }
 });
 
 function updateThemeDisplay(isDark) {
     if (themeStatusDiv) {
-        themeStatusDiv.textContent = `Sistem Teması: ${isDark ? 'Karanlık Mod' : 'Aydınlık Mod'}`;
+        console.log(isDark ? 'DARK MODE' : 'LIGHT MODE');
     }
 }
 
@@ -51,18 +46,15 @@ myForm.addEventListener('submit', (event) => {
         file_path: document.getElementById('fp').value,
     };
 
-    console.log('Form verileri hazırlanıyor (Renderer):', formData); // Bu log'u kontrol et!
-
     window.myApi.send('form-veri-gonder', formData);
 
     responseMessageDiv.style.display = 'block';
     responseMessageDiv.style.backgroundColor = '#d4edda';
     responseMessageDiv.style.borderColor = '#c3e6cb';
-    responseMessageDiv.textContent = 'Veriler gönderiliyor... Lütfen bekleyin.';
+    responseMessageDiv.textContent = 'Processing...';
 });
 
 window.myApi.receive('form-isleme-tamamlandi', (response) => {
-    console.log('Main Sürecinden cevap alındı (Renderer):', response);
     responseMessageDiv.textContent = response.message;
     if (response.success) {
         responseMessageDiv.style.backgroundColor = '#d4edda';
