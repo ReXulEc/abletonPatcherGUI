@@ -6,11 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "cli": "node index.js"
+    "cli": "node --trace-warnings cli.js"
   },
   "author": "rexulec",
   "license": "ISC",
   "dependencies": {
+    "@clack/prompts": "^0.11.0",
     "asn1.js": "^5.4.1",
     "bn.js": "^5.2.2"
   },
