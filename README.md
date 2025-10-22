@@ -19,8 +19,7 @@
 
 ---
 
-## Quick safe setup (clone & deps)
-These steps prepare the repo for **code inspection and development only** — they do **not** run or trigger any patching logic.
+## Quick setup
 
 ```bash
 # clone
