@@ -11,20 +11,23 @@ function createWindow() {
         title: 'AbletonPatcherGUI',
         width: 400,
         height: 500,
+        minWidth: 400,
+        minHeight: 500,
         transparent: true,
-        frame: true,
-        resizable: false,
+        frame: false,
+        resizable: true,
         vibrancy: 'fullscreen-ui',    // on MacOS
         backgroundMaterial: 'acrylic', // on Windows 11
         webPreferences: {
             preload: path.join(__dirname, './util/preload.js'),
             nodeIntegration: false,
             contextIsolation: true
-        }
+        },
+        titleBarStyle: 'hidden',
     });
 
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
-    // mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {

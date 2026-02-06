@@ -20,8 +20,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         updateThemeDisplay(isDark);
         if (isDark) {
             document.body.classList.add('dark-mode');
+            document.option.classList.add('dark-mode');
+
         } else {
             document.body.classList.add('light-mode');
+            document.option.classList.add('light-mode');
+
         }
     } catch (error) {
         console.error(error)
